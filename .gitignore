@@ -1,0 +1,39 @@
+## .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.vs/
+.vscode/
+
+## Databases
+*.db
+*.mdf
+*.ldf
+
+## Logs
+*.log
+
+## Visual Studio
+_ReSharper*/
+*.resharper
+*.sln.iml
+
+## Packages
+packages/
+
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+
+## Test results
+TestResult.xml
+*.trx
