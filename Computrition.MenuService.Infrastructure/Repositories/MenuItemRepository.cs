@@ -1,37 +1,46 @@
 ﻿using Dapper;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Computrition.MenuService.Core.Entities;
 using Computrition.MenuService.Core.Interfaces;
 using Computrition.MenuService.Infrastructure.Data;
+
 namespace Computrition.MenuService.Infrastructure.Repositories;
-using Microsoft.Extensions.Configuration;
+
 public class MenuItemRepository : IMenuItemRepository
 {
     private readonly ApplicationDbContext _dbContext;
-    private readonly IConfiguration _configuration;
+    private readonly string _connectionString;
+    private readonly ITenantContext _tenantContext;
 
-    public MenuItemRepository(ApplicationDbContext dbContext, IConfiguration configuration)
+    public MenuItemRepository(
+        ApplicationDbContext dbContext,
+        IConfiguration configuration,
+        ITenantContext tenantContext)
     {
         _dbContext = dbContext;
-        _configuration = configuration;
+        _connectionString = configuration.GetConnectionString("DefaultConnection");
+        _tenantContext = tenantContext;
     }
 
-    // Using Entity Framework Core for write operations
     public async Task<MenuItem> CreateAsync(MenuItem menuItem)
     {
+        // Ensure the menu item has the correct tenant ID
+        menuItem.TenantId = _tenantContext.TenantId;
+
         _dbContext.MenuItems.Add(menuItem);
         await _dbContext.SaveChangesAsync();
         return menuItem;
     }
 
-    // Using Dapper for high-performance read operations
-    public async Task<IEnumerable<MenuItem>> GetAllowedMenuItemsAsync(int patientId, int tenantId)
+    public async Task<IEnumerable<MenuItem>> GetAllowedMenuItemsAsync(int patientId)
     {
-        var connectionString = _configuration.GetConnectionString("DefaultConnection");
-        using var connection = new SqliteConnection(connectionString);
+        var tenantId = _tenantContext.TenantId;
 
-        // First, get patient's dietary restriction
+        using var connection = new SqliteConnection(_connectionString);
+
+        // First, get patient's dietary restriction WITH TENANT CHECK
         var patientQuery = @"
             SELECT DietaryRestrictionCode 
             FROM Patients 
@@ -44,7 +53,7 @@ public class MenuItemRepository : IMenuItemRepository
         if (restriction == null)
             return Enumerable.Empty<MenuItem>();
 
-        // Build dynamic SQL based on restriction
+        // Build dynamic SQL based on restriction WITH TENANT CHECK
         var sql = @"
             SELECT * FROM MenuItems 
             WHERE TenantId = @TenantId";
@@ -59,7 +68,7 @@ public class MenuItemRepository : IMenuItemRepository
         {
             sql += " AND IsSugarFree = 1";
         }
-        // NONE restriction returns all items
+        // NONE restriction returns all items for this tenant
 
         return await connection.QueryAsync<MenuItem>(sql, parameters);
     }

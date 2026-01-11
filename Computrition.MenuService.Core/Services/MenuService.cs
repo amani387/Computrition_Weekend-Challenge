@@ -14,15 +14,14 @@ public class MenuManagementService : IMenuService
 
     public async Task<MenuItem> CreateMenuItemAsync(MenuItem menuItem)
     {
-        // Additional business logic can be added here
         if (string.IsNullOrWhiteSpace(menuItem.Name))
             throw new ArgumentException("Menu item name is required");
 
         return await _menuItemRepository.CreateAsync(menuItem);
     }
 
-    public async Task<IEnumerable<MenuItem>> GetAllowedMenuItemsAsync(int patientId, int tenantId)
+    public async Task<IEnumerable<MenuItem>> GetAllowedMenuItemsAsync(int patientId)
     {
-        return await _menuItemRepository.GetAllowedMenuItemsAsync(patientId, tenantId);
+        return await _menuItemRepository.GetAllowedMenuItemsAsync(patientId);
     }
 }

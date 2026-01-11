@@ -10,7 +10,9 @@ public class PatientsController : ControllerBase
     private readonly IMenuService _menuService;
     private readonly ILogger<PatientsController> _logger;
 
-    public PatientsController(IMenuService menuService, ILogger<PatientsController> logger)
+    public PatientsController(
+        IMenuService menuService,
+        ILogger<PatientsController> logger)
     {
         _menuService = menuService;
         _logger = logger;
@@ -21,24 +23,13 @@ public class PatientsController : ControllerBase
     {
         try
         {
-            // Get tenant from header
-            if (!Request.Headers.TryGetValue("X-Tenant-Id", out var tenantHeader))
-            {
-                return BadRequest(new { error = "Tenant ID header is required" });
-            }
-
-            if (!int.TryParse(tenantHeader, out var tenantId))
-            {
-                return BadRequest(new { error = "Invalid tenant ID" });
-            }
-
-            var allowedItems = await _menuService.GetAllowedMenuItemsAsync(patientId, tenantId);
+            var allowedItems = await _menuService.GetAllowedMenuItemsAsync(patientId);
 
             if (!allowedItems.Any())
             {
                 return NotFound(new
                 {
-                    message = "Patient not found or no menu items available"
+                    message = "Patient not found or no menu items available for this tenant"
                 });
             }
 
