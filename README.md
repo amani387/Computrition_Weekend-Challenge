@@ -48,4 +48,12 @@ curl -X POST "https://localhost:7171/api/menu-items" \
   -H "Content-Type: application/json" \
   -H "X-Tenant-Id: 1" \
   -d '{"name":"Grilled Salmon","category":"Main","isGlutenFree":true,"isSugarFree":true,"isHeartHealthy":true}'
+```
 
+## Quick Start
+
+### Run Locally
+```bash
+git clone (https://github.com/amani387/Computrition_Weekend-Challenge)
+cd Computrition.MenuService
+dotnet run --project Computrition.MenuService.API
