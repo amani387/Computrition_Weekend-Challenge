@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  patient-menu-service:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
