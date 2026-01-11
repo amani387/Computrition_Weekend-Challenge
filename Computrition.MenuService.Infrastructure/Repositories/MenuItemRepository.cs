@@ -20,13 +20,12 @@ public class MenuItemRepository : IMenuItemRepository
         ITenantContext tenantContext)
     {
         _dbContext = dbContext;
-        _connectionString = configuration.GetConnectionString("DefaultConnection");
+        _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         _tenantContext = tenantContext;
     }
 
     public async Task<MenuItem> CreateAsync(MenuItem menuItem)
     {
-        // Ensure the menu item has the correct tenant ID
         menuItem.TenantId = _tenantContext.TenantId;
 
         _dbContext.MenuItems.Add(menuItem);
@@ -40,7 +39,6 @@ public class MenuItemRepository : IMenuItemRepository
 
         using var connection = new SqliteConnection(_connectionString);
 
-        // First, get patient's dietary restriction WITH TENANT CHECK
         var patientQuery = @"
             SELECT DietaryRestrictionCode 
             FROM Patients 

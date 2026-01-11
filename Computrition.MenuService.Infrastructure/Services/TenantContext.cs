@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Computrition.MenuService.Core.Interfaces;
-using Microsoft.AspNetCore.Http;
+
 namespace Computrition.MenuService.Infrastructure.Services;
 
 public class TenantContext : ITenantContext
